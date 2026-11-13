@@ -1,1 +1,145 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPS Emulator</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6fb;color:#172033;font-family:Arial}
+header{background:#142b4a;color:white;padding:22px}
+header h2{margin:0}
+main{max-width:650px;margin:20px auto;padding:12px}
+.card{background:white;padding:18px;border-radius:15px;margin-bottom:15px;box-shadow:0 3px 15px #0001}
+h3{margin-top:0}
+label{display:block;margin:12px 0 6px;font-weight:bold}
+input{width:100%;padding:13px;border:1px solid #ddd;border-radius:9px;font-size:16px}
+button{padding:13px;border:0;border-radius:9px;background:#1769c2;color:white;font-size:15px;font-weight:bold;width:100%;margin-top:12px}
+.secondary{background:#e5effb;color:#1769c2}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#map{padding:35px 10px;background:#e4eee5;text-align:center;border-radius:12px}
+#status{padding:13px;background:#eef3f9;border-radius:9px}
+.small{font-size:12px;color:#65748b;line-height:1.5}
+</style>
+</head>
+<body>
+
+<header>
+<h2>📍 GPS Emulator</h2>
+<p>Location Simulator Dashboard</p>
+</header>
+
+<main>
+<div class="card">
+<h3>Search Location</h3>
+<label>Place Name</label>
+<input id="place" placeholder="Enter city or location">
+<button class="secondary" onclick="searchPlace()">Search Location</button>
+</div>
+
+<div class="card">
+<h3>Set GPS Coordinates</h3>
+<div class="grid">
+<div>
+<label>Latitude</label>
+<input id="lat" type="number" step="any" placeholder="22.3039">
+</div>
+<div>
+<label>Longitude</label>
+<input id="lon" type="number" step="any" placeholder="70.8022">
+</div>
+</div>
+
+<button class="secondary" onclick="getLocation()">Get Current Location</button>
+<button onclick="startGPS()">▶ Start Simulation</button>
+<button class="secondary" onclick="stopGPS()">■ Stop Simulation</button>
+</div>
+
+<div class="card">
+<h3>Map Preview</h3>
+<div id="map">
+📍<br>
+Select Your Location
+</div>
+<button class="secondary" onclick="openMap()">Open Google Map</button>
+</div>
+
+<div class="card">
+<h3>GPS Status</h3>
+<div id="status">Not Running</div>
+<p class="small">
+This is an HTML location simulator. It displays selected coordinates but cannot change Android system GPS. Android mock location requires a compatible Android application and Developer Options.
+</p>
+</div>
+</main>
+
+<script>
+let active=false;
+
+function getCoords(){
+let lat=parseFloat(document.getElementById("lat").value);
+let lon=parseFloat(document.getElementById("lon").value);
+
+if(!Number.isFinite(lat)||!Number.isFinite(lon)||
+lat < -90||lat > 90||lon < -180||lon > 180){
+alert("Enter valid GPS coordinates");
+return null;
+}
+return {lat,lon};
+}
+
+function startGPS(){
+let p=getCoords();
+if(!p)return;
+
+active=true;
+document.getElementById("status").innerHTML=
+"🟢 Simulation Running<br>Latitude: "+p.lat+
+"<br>Longitude: "+p.lon;
+
+document.getElementById("map").innerHTML=
+"📍<br><b>Selected Location</b><br>"+
+p.lat.toFixed(6)+", "+p.lon.toFixed(6);
+}
+
+function stopGPS(){
+active=false;
+document.getElementById("status").innerHTML=
+"🔴 Simulation Stopped";
+}
+
+function getLocation(){
+if(!navigator.geolocation){
+alert("Location not supported");
+return;
+}
+navigator.geolocation.getCurrentPosition(
+p=>{
+document.getElementById("lat").value=p.coords.latitude;
+document.getElementById("lon").value=p.coords.longitude;
+},
+()=>alert("Please allow location permission")
+);
+}
+
+function searchPlace(){
+let q=document.getElementById("place").value.trim();
+if(!q){alert("Enter location name");return;}
+window.open(
+"https://www.google.com/maps/search/?api=1&query="+
+encodeURIComponent(q),"_blank");
+}
+
+function openMap(){
+let p=getCoords();
+if(!p)return;
+window.open(
+"https://www.google.com/maps?q="+p.lat+","+p.lon,
+"_blank");
+}
+</script>
+
+</body>
+</html>
+
